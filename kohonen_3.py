@@ -45,8 +45,11 @@ class Neuron:
         @param x: entrée du neurone
         @type x: numpy array
         '''
-        # TODO Attention il faut bien renvoyer la distance entre le poids et l'entrée et pas 0/1 suivant si le neurone est gagnant ou pas comme dans le TP (la détermination du neurone gagnant se fait ailleurs dans le code)
-        self.y = None
+        # TODO Attention il faut bien renvoyer la distance entre le poids et l'entrée et pas 0/1
+        # DONE
+        # suivant si le neurone est gagnant ou pas comme dans le TP
+        # (la détermination du neurone gagnant se fait ailleurs dans le code)
+        self.y = numpy.sqrt(numpy.sum(numpy.power(x - self.weights, 2)))
 
     def learn(self, eta, sigma, posxbmu, posybmu, x):
         '''
@@ -63,7 +66,9 @@ class Neuron:
         @type x: numpy array
         '''
         # TODO
-        self.weights[:] = numpy.random.random(self.weights.shape)
+        distCarre = (self.posx - posxbmu) ** 2 + (self.posy - posybmu) ** 2
+        ftnVoisinage = numpy.exp(-distCarre / (2 * sigma **2))
+        self.weights[:] = eta * ftnVoisinage * (x - self.weights) + self.weights
 
 
 class SOM:
