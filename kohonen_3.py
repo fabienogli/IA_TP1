@@ -66,7 +66,7 @@ class Neuron:
         @type x: numpy array
         '''
         # TODO
-        distCarre = (self.posx - posxbmu) ** 2 + (self.posy - posybmu) ** 2
+        distCarre = numpy.add((self.posx - posxbmu) ** 2,(self.posy - posybmu) ** 2)
         ftnVoisinage = numpy.exp(-distCarre / (2 * sigma **2))
         self.weights[:] = eta * ftnVoisinage * (x - self.weights) + self.weights
 
@@ -209,85 +209,136 @@ class SOM:
 
 # -----------------------------------------------------------------------------
 if __name__ == '__main__':
-    # Création d'un réseau avec une entrée (2,1) et une carte (10,10) (TODO ATTENTION METTRE À JOUR LA TAILLE DE L'ENTRÉE POUR LES DONNÉES MNIST)
-    network = SOM((2, 1), (10, 10))
-    # PARAMÈTRES DU RÉSEAU
-    # Taux d'apprentissage
-    ETA = 0.05
-    # Largeur du voisinage
-    SIGMA = 1.4
-    # Nombre de pas de temps d'apprentissage
-    N = 30000
-    # Affichage interactif de l'évolution du réseau (TODO ATTENTION METTRE À FAUX POUR LES DONNÉES MNIST)
-    VERBOSE = True
-    # Nombre de pas de temps avant rafraissichement de l'affichage
-    NAFFICHAGE = 1000
-    # DONNÉES D'APPRENTISSAGE
-    # Nombre de données à générer pour les ensembles 1, 2 et 3
-    nsamples = 1000
-    # Ensemble de données 1
-    samples = numpy.random.random((nsamples, 2, 1))
-    samples[:, 0, :] -= 1
-    # Ensemble de données 2
-    #  nsamples = 999
-    #  samples1 = -numpy.random.random((nsamples//3,2,1))
-    #  samples2 = numpy.random.random((nsamples//3,2,1))
-    #  samples2[:,0,:] -= 1
-    #  samples3 = numpy.random.random((nsamples//3,2,1))
-    #  samples3[:,1,:] -= 1
-    #  samples = numpy.concatenate((samples1,samples2,samples3))
-    # Ensemble de données 3
-    #  nsamples=1000
-    #  samples1 = numpy.random.random((nsamples//2,2,1))
-    #  samples1[:,0,:] -= 1
-    #  samples2 = numpy.random.random((nsamples//2,2,1))
-    #  samples2[:,1,:] -= 1
-    #  samples = numpy.concatenate((samples1,samples2))
-    # Affichage des données (TODO ATTENTION À COMMENTER POUR LES DONNÉES MNIST)
-    plt.figure()
-    plt.scatter(samples[:, 0, 0], samples[:, 1, 0])
-    plt.xlim(-1, 1)
-    plt.ylim(-1, 1)
-    plt.suptitle('Donnees apprentissage')
-    plt.show()
-    # Ensemble de données 4
-    #  nsamples = 70000
-    #  samples = pickle.load(gzip.open('mnist.pkl.gz'),encoding='latin1')
 
-    # SIMULATION
-    # Affichage des poids du réseau
-    network.plot()
-    # Initialisation de l'affichage interactif
-    if VERBOSE:
-        # Création d'une figure
-        plt.figure()
-        # Mode interactif
-        plt.ion()
-        # Affichage de la figure
-        plt.show()
-    # Boucle d'apprentissage
-    for i in range(N + 1):
-        # Choix d'un exemple aléatoire pour l'entrée courante
-        index = numpy.random.randint(nsamples)
-        x = samples[index]
-        # Calcul de l'activité du réseau
-        network.compute(x)
-        # Modification des poids du réseau
-        network.learn(ETA, SIGMA, x)
-        # Mise à jour de l'affichage
-        if VERBOSE and i % NAFFICHAGE == 0:
-            # Effacement du contenu de la figure
-            plt.clf()
-            # Remplissage de la figure
-            network.scatter_plot(True)
-            # Affichage du contenu de la figure
-            plt.pause(0.00001)
-            plt.draw()
-    # Fin de l'affichage interactif
-    if VERBOSE:
-        # Désactivation du mode interactif
-        plt.ioff()
-    # Affichage des poids du réseau
-    network.plot()
-    # Affichage de l'erreur de quantification vectorielle moyenne après apprentissage
-    print("erreur de quantification vectorielle moyenne ", network.MSE(samples))
+    def testTp(ETA, SIGMA, N, sizeMap, typeOfData):
+        """
+        # PARAMÈTRES DU RÉSEAU
+        :param ETAT: Taux d'apprentissage
+        :param SIGMA: Largeur du voisinage
+        :param N: Nombre de pas de temps d'apprentissage
+        """
+        # Création d'un réseau avec une entrée (2,1) et une carte (10,10) (TODO ATTENTION METTRE À JOUR LA TAILLE DE L'ENTRÉE POUR LES DONNÉES MNIST)
+        if (typeOfData != 1 & typeOfData != 2 & typeOfData != 3):
+            network = SOM((28, 28), (sizeMap, sizeMap))
+            VERBOSE = True
+        else:
+            network = SOM((2, 1), (sizeMap, sizeMap))
+            # Affichage interactif de l'évolution du réseau (TODO ATTENTION METTRE À FAUX POUR LES DONNÉES MNIST)
+            VERBOSE = False
+
+        # Nombre de pas de temps avant rafraissichement de l'affichage
+        NAFFICHAGE = N
+        # DONNÉES D'APPRENTISSAGE
+        # Nombre de données à générer pour les ensembles 1, 2 et 3
+        nsamples = 1000
+        if (typeOfData == 1):
+            # Ensemble de données 1
+            samples = numpy.random.random((nsamples, 2, 1))
+            samples[:, 0, :] -= 1
+        if (typeOfData == 2):
+            # Ensemble de données 2
+             nsamples = 999
+             samples1 = -numpy.random.random((nsamples//3,2,1))
+             samples2 = numpy.random.random((nsamples//3,2,1))
+             samples2[:,0,:] -= 1
+             samples3 = numpy.random.random((nsamples//3,2,1))
+             samples3[:,1,:] -= 1
+             samples = numpy.concatenate((samples1,samples2,samples3))
+        else:
+            # Ensemble de données 3
+             samples1 = numpy.random.random((nsamples//2,2,1))
+             samples1[:,0,:] -= 1
+             samples2 = numpy.random.random((nsamples//2,2,1))
+             samples2[:,1,:] -= 1
+             samples = numpy.concatenate((samples1,samples2))
+
+        # Affichage des données
+        if (VERBOSE):
+            plt.figure()
+            plt.scatter(samples[:, 0, 0], samples[:, 1, 0])
+            plt.xlim(-1, 1)
+            plt.ylim(-1, 1)
+            plt.suptitle('Donnees apprentissage')
+            plt.show()
+
+        # Ensemble de données 4
+        nsamples = 70000
+        samples = pickle.load(gzip.open('mnist.pkl.gz'),encoding='latin1')
+
+        # SIMULATION
+        # Affichage des poids du réseau
+        network.plot()
+        # Initialisation de l'affichage interactif
+        if VERBOSE:
+            # Création d'une figure
+            plt.figure()
+            # Mode interactif
+            plt.ion()
+            # Affichage de la figure
+            plt.show()
+        # Boucle d'apprentissage
+        for i in range(N + 1):
+            # Choix d'un exemple aléatoire pour l'entrée courante
+            index = numpy.random.randint(nsamples)
+            x = samples[index]
+            # Calcul de l'activité du réseau
+            network.compute(x)
+            # Modification des poids du réseau
+            network.learn(ETA, SIGMA, x)
+            # Mise à jour de l'affichage
+            if VERBOSE and i % NAFFICHAGE == 0:
+                # Effacement du contenu de la figure
+                plt.clf()
+                # Remplissage de la figure
+                network.scatter_plot(True)
+                # Affichage du contenu de la figure
+                plt.pause(0.00001)
+                plt.draw()
+        # Fin de l'affichage interactif
+        if VERBOSE:
+            # Désactivation du mode interactif
+            plt.ioff()
+        # Affichage des poids du réseau
+        network.plot()
+        # Affichage de l'erreur de quantification vectorielle moyenne après apprentissage
+        print("erreur de quantification vectorielle moyenne ", network.MSE(samples))
+
+    #Base ETA = 0.25, SIGMA = 1.4, N=3000
+
+    #Test de Etat
+    #test modification taux d'apprentissage
+    def testEta():
+        testTp(0.05, 1.4, 3000, 10, 1)
+        testTp(0.25, 1.4, 3000, 10, 1)
+        testTp(0.50, 1.4, 3000, 10, 1)
+        testTp(0.75, 1.4, 3000, 10, 1)
+        testTp(1.00, 1.4, 3000, 10, 1)
+
+    def testSigma():
+        testTp(0.25, 0.7, 3000, 10, 1)
+        testTp(0.25, 1.4, 3000, 10, 1)
+        testTp(0.25, 2.1, 3000, 10, 1)
+        testTp(0.25, 2.8, 3000, 10, 1)
+        testTp(0.25, 3.5, 3000, 10, 1)
+
+    def testN():
+        testTp(0.25, 1.4, 1000, 10, 1)
+        testTp(0.25, 1.4, 3000, 10, 1)
+        testTp(0.25, 1.4, 5000, 10, 1)
+        testTp(0.25, 1.4, 8000, 10, 1)
+        testTp(0.25, 1.4, 10000, 10, 1)
+
+    def testMapSize():
+        testTp(0.25, 1.4, 3000, 20, 1)
+        testTp(0.25, 1.4, 3000, 30, 1)
+        testTp(0.25, 1.4, 3000, 15, 1)
+
+    def testData():
+        testTp(0.25, 1.4, 1000, 10, 2)
+        testTp(0.25, 1.4, 1000, 10, 3)
+
+    def testMnits():
+        # testTp(0.25, 1.4, 1000, 10, 0)
+        testTp(0.25, 1.4, 1000, 28, 0)
+
+    testMnits()
